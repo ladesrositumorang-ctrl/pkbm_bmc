@@ -1,0 +1,68 @@
+<%- include('partials/header', { title: 'Data Anggota' }) %>
+<% const activeCount = members.filter(m => m.active).length; %>
+<section class="page-head">
+  <div>
+    <h1>Data anggota</h1>
+    <p class="lead"><%= activeCount %> aktif dari <%= members.length %> tutor dan staf PKBM BMC.</p>
+  </div>
+  <% if (user.role === 'admin') { %>
+    <div class="page-actions">
+      <a class="btn btn-ghost" href="/members/cards"><svg class="icon"><use href="#i-printer"/></svg>Cetak kartu QR</a>
+    </div>
+  <% } %>
+</section>
+
+<% if (user.role === 'admin') { %>
+<details class="panel add-panel" <%= (edit || error) ? 'open' : '' %>>
+  <summary>
+    <svg class="icon"><use href="#i-plus"/></svg>
+    <span><%= edit ? 'Ubah anggota' : 'Tambah anggota' %></span>
+  </summary>
+  <% if (error) { %><p class="notice notice-error" role="alert"><%= error %></p><% } %>
+  <form method="post" action="/members" class="member-form">
+    <% if (edit) { %><input type="hidden" name="id" value="<%= edit.id %>"><% } %>
+    <label class="field"><span>Kode</span><input name="code" required value="<%= edit ? edit.code : '' %>"></label>
+    <label class="field"><span>Nama</span><input name="name" required value="<%= edit ? edit.name : '' %>"></label>
+    <label class="field"><span>Jenis</span>
+      <select name="type">
+        <% TYPES.forEach(t => { %><option value="<%= t %>" <%= edit && edit.type === t ? 'selected' : '' %>><%= t[0].toUpperCase() + t.slice(1) %></option><% }) %>
+      </select>
+    </label>
+    <label class="field"><span>Kelas/Program</span><input name="class_name" value="<%= edit && edit.class_name ? edit.class_name : '' %>"></label>
+    <% if (edit) { %><label class="check"><input type="checkbox" name="active" <%= edit.active ? 'checked' : '' %>> Anggota aktif</label><% } %>
+    <div class="form-actions">
+      <button class="btn" type="submit"><%= edit ? 'Simpan perubahan' : 'Tambah anggota' %></button>
+      <% if (edit) { %><a class="text-link" href="/members">Batal</a><% } %>
+    </div>
+  </form>
+</details>
+<% } %>
+
+<section class="panel table-panel">
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Anggota</th><th>Jenis</th><th>Kelas/Program</th><th>Status</th><% if (user.role === 'admin') { %><th><span class="sr-only">Aksi</span></th><% } %></tr></thead>
+      <tbody>
+      <% members.forEach(m => { %>
+        <tr class="<%= m.active ? '' : 'off' %>">
+          <td><div class="cell-person"><strong><%= formatTitleCase(m.name) %></strong><small><%= m.code %></small></div></td>
+          <td><span class="tag"><%= m.type === 'tutor' ? 'Tutor' : 'Staf' %></span></td>
+          <td><%= m.class_name || '–' %></td>
+          <td><span class="state <%= m.active ? 'is-on' : '' %>"><%= m.active ? 'Aktif' : 'Nonaktif' %></span></td>
+          <% if (user.role === 'admin') { %>
+          <td class="actions">
+            <a class="text-link" href="/members?edit=<%= m.id %>">Ubah</a>
+            <a class="text-link" href="/members/cards?id=<%= m.id %>">Kartu QR</a>
+            <form method="post" action="/members/<%= m.id %>/delete" onsubmit="return confirm('Hapus anggota beserta seluruh data absensinya?')">
+              <button class="link-danger" type="submit">Hapus</button>
+            </form>
+          </td>
+          <% } %>
+        </tr>
+      <% }) %>
+      <% if (!members.length) { %><tr><td colspan="<%= user.role === 'admin' ? 5 : 4 %>" class="empty-row">Belum ada anggota. Tambahkan anggota pertama lewat tombol di atas.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/footer') %>

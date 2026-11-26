@@ -1,0 +1,78 @@
+<%- include('partials/header', { title: 'Rekap & Laporan' }) %>
+<%
+  const sum = rows.reduce((a, r) => { a.hadir += r.hadir; a.izin += r.izin; a.sakit += r.sakit; a.alpa += r.alpa; return a; }, { hadir: 0, izin: 0, sakit: 0, alpa: 0 });
+  const csvHref = '/recap?period=' + period + '&date=' + date + '&type=' + type + '&format=csv';
+%>
+<section class="page-head">
+  <div>
+    <h1>Rekap &amp; laporan</h1>
+    <p class="lead">Ringkasan absensi per anggota dan periode.</p>
+  </div>
+  <div class="page-actions no-print">
+    <a class="btn btn-ghost" href="<%= csvHref %>"><svg class="icon"><use href="#i-download"/></svg>Unduh CSV</a>
+    <button type="button" class="btn btn-ghost" onclick="window.print()"><svg class="icon"><use href="#i-printer"/></svg>Cetak</button>
+  </div>
+</section>
+
+<form method="get" action="/recap" class="panel filter-panel no-print">
+  <label class="field"><span>Periode</span>
+    <select name="period">
+      <% ['harian','mingguan','bulanan'].forEach(p => { %><option value="<%= p %>" <%= period === p ? 'selected' : '' %>><%= p[0].toUpperCase() + p.slice(1) %></option><% }) %>
+    </select>
+  </label>
+  <label class="field"><span>Tanggal acuan</span><input type="date" name="date" value="<%= date %>"></label>
+  <label class="field"><span>Jenis</span>
+    <select name="type">
+      <option value="">Semua</option>
+      <% TYPES.forEach(t => { %><option value="<%= t %>" <%= type === t ? 'selected' : '' %>><%= t[0].toUpperCase() + t.slice(1) %></option><% }) %>
+    </select>
+  </label>
+  <button class="btn" type="submit">Tampilkan</button>
+</form>
+
+<section class="panel table-panel">
+  <div class="panel-head recap-head">
+    <div>
+      <h2><%= rangeLabel(from, to) %></h2>
+      <p class="muted small">Rekap <%= period %><%= type ? ', khusus ' + type : '' %> · <%= rows.length %> anggota</p>
+    </div>
+    <dl class="sum-line" aria-label="Jumlah seluruh anggota">
+      <div><dt><span class="dot dot-hadir"></span>Hadir</dt><dd><%= sum.hadir %></dd></div>
+      <div><dt><span class="dot dot-izin"></span>Izin</dt><dd><%= sum.izin %></dd></div>
+      <div><dt><span class="dot dot-sakit"></span>Sakit</dt><dd><%= sum.sakit %></dd></div>
+      <div><dt><span class="dot dot-alpa"></span>Alpa</dt><dd><%= sum.alpa %></dd></div>
+    </dl>
+  </div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="col-no">No</th><th>Anggota</th><th>Jenis</th>
+          <th class="num">Hadir</th><th class="num">Izin</th><th class="num">Sakit</th><th class="num">Alpa</th>
+          <th class="num">Total</th><th class="col-rate">Kehadiran</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach((r, i) => { %>
+        <tr>
+          <td class="col-no"><%= i + 1 %></td>
+          <td><div class="cell-person"><strong><%= formatTitleCase(r.name) %></strong><small><%= r.code %></small></div></td>
+          <td><span class="tag"><%= r.type === 'tutor' ? 'Tutor' : 'Staf' %></span></td>
+          <td class="num <%= r.hadir ? 'v-hadir' : 'zero' %>"><%= r.hadir %></td>
+          <td class="num <%= r.izin ? 'v-izin' : 'zero' %>"><%= r.izin %></td>
+          <td class="num <%= r.sakit ? 'v-sakit' : 'zero' %>"><%= r.sakit %></td>
+          <td class="num <%= r.alpa ? 'v-alpa' : 'zero' %>"><%= r.alpa %></td>
+          <td class="num"><strong><%= r.total %></strong></td>
+          <td class="col-rate">
+            <% if (r.total) { %>
+              <span class="rate"><span class="rate-bar"><span style="width: <%= r.pct %>%"></span></span><span class="rate-num"><%= r.pct %>%</span></span>
+            <% } else { %><span class="muted">–</span><% } %>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (!rows.length) { %><tr><td colspan="9" class="empty-row">Tidak ada data untuk periode ini.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/footer') %>

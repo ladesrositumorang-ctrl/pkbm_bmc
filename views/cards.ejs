@@ -1,0 +1,51 @@
+<%- include('partials/header', { title: 'Kartu QR' }) %>
+<section class="page-head no-print">
+  <div>
+    <h1>Kartu QR anggota</h1>
+    <p class="lead"><%= single ? 'Satu kartu terpilih.' : cards.length + ' kartu siap cetak.' %> Cetak di kertas A4, potong, lalu laminating.</p>
+  </div>
+  <div class="page-actions">
+    <% if (!single) { %>
+      <div class="segmented-control" role="group" aria-label="Filter jenis anggota">
+        <a class="<%= type === '' ? 'selected' : '' %>" href="/members/cards">Semua</a>
+        <a class="<%= type === 'tutor' ? 'selected' : '' %>" href="/members/cards?type=tutor">Tutor</a>
+        <a class="<%= type === 'staf' ? 'selected' : '' %>" href="/members/cards?type=staf">Staf</a>
+      </div>
+    <% } else { %>
+      <a class="btn btn-ghost" href="/members/cards">Semua kartu</a>
+    <% } %>
+    <button type="button" class="btn" onclick="window.print()"><svg class="icon"><use href="#i-printer"/></svg>Cetak</button>
+  </div>
+</section>
+
+<% if (regenerated) { %>
+  <p class="notice notice-success no-print" role="status">QR baru dibuat. Kartu lama sudah tidak berlaku, cetak ulang kartu ini.</p>
+<% } %>
+
+<% if (!cards.length) { %>
+  <p class="panel empty">Belum ada anggota aktif untuk dicetak kartunya.</p>
+<% } %>
+<div class="cards-grid">
+  <% cards.forEach(c => { %>
+    <article class="id-card">
+      <div class="id-main">
+        <p class="id-brand"><span class="brand-mark brand-mark-sm" aria-hidden="true"><svg class="icon"><use href="#i-tick"/></svg></span>PKBM BMC Pandeglang</p>
+        <div>
+          <h2 class="id-name"><%= formatTitleCase(c.name) %></h2>
+          <p class="id-meta"><%= c.type === 'tutor' ? 'Tutor' : 'Staf' %></p>
+          <p class="id-code"><%= c.code %></p>
+        </div>
+        <p class="id-hint">Pindai kartu ini saat tiba</p>
+      </div>
+      <div class="id-qr" role="img" aria-label="Kode QR <%= formatTitleCase(c.name) %>"><%- c.svg %></div>
+    </article>
+  <% }) %>
+</div>
+
+<% if (single && cards.length) { %>
+  <form class="regen no-print" method="post" action="/members/<%= cards[0].id %>/regenerate-qr" onsubmit="return confirm('Buat QR baru? Kartu lama anggota ini langsung tidak berlaku.')">
+    <p class="muted small">Kartu hilang atau terfoto orang lain?</p>
+    <button class="btn btn-ghost btn-sm" type="submit"><svg class="icon"><use href="#i-swap"/></svg>Buat QR baru</button>
+  </form>
+<% } %>
+<%- include('partials/footer') %>

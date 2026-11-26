@@ -1,0 +1,69 @@
+<%- include('partials/header', { title: 'Pindai QR' }) %>
+<section class="page-head">
+  <div>
+    <h1>Pindai QR</h1>
+    <p class="lead"><%= dateLabel %> · waktu WIB</p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/members/cards"><svg class="icon"><use href="#i-printer"/></svg>Cetak kartu QR</a>
+  </div>
+</section>
+
+<div class="scan-grid" id="scan-app" data-total="<%= summary.total %>">
+  <section class="panel scanner" aria-label="Pemindai kamera">
+    <div class="viewfinder" id="viewfinder" data-state="idle">
+      <video id="video" playsinline muted></video>
+      <canvas id="frame" hidden></canvas>
+      <div class="reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <div class="vf-message" id="vf-message">
+        <svg class="icon icon-lg"><use href="#i-camera"/></svg>
+        <p id="vf-text">Kamera belum aktif</p>
+      </div>
+    </div>
+    <div class="scanner-bar">
+      <button type="button" class="btn" id="cam-toggle"><svg class="icon"><use href="#i-camera"/></svg><span>Aktifkan kamera</span></button>
+      <button type="button" class="btn btn-ghost" id="cam-switch" hidden><svg class="icon"><use href="#i-swap"/></svg>Ganti kamera</button>
+      <label class="check sound-toggle"><input type="checkbox" id="sound" checked> Bunyi bip</label>
+    </div>
+    <form class="manual" id="manual-form" autocomplete="off">
+      <label class="field" for="manual-input"><span>Pemindai USB atau tempel kode</span></label>
+      <div class="manual-row">
+        <input id="manual-input" name="payload" placeholder="Arahkan pemindai USB ke kolom ini" spellcheck="false" autocapitalize="off">
+        <button class="btn btn-ghost" type="submit">Catat</button>
+      </div>
+    </form>
+  </section>
+
+  <div class="scan-side">
+    <section class="panel result" id="result" data-kind="idle" role="status" aria-live="polite">
+      <svg class="icon icon-lg result-icon" aria-hidden="true"><use href="#i-scan"/></svg>
+      <div class="result-body">
+        <p class="result-title" id="result-title">Menunggu kartu QR</p>
+        <p class="result-sub" id="result-sub">Arahkan kartu anggota ke kamera.</p>
+      </div>
+      <time class="result-time" id="result-time"></time>
+    </section>
+
+    <section class="panel progress-panel" aria-label="Progres hadir">
+      <p class="today-sum"><strong id="present-count"><%= summary.hadir %></strong> dari <%= summary.total %> anggota hadir</p>
+      <div class="tally"><span id="present-bar" style="flex: <%= summary.hadir %>; background: var(--hadir)"></span><span class="tally-pending" id="absent-bar" style="flex: <%= Math.max(summary.total - summary.hadir, 0) %>"></span></div>
+    </section>
+
+    <section class="panel recent" aria-labelledby="recent-heading">
+      <h2 id="recent-heading">Masuk hari ini</h2>
+      <ol class="feed-list" id="recent-list">
+        <% recent.forEach(r => { %>
+          <li>
+            <span class="avatar avatar-sm" aria-hidden="true"><%= r.name.charAt(0) %></span>
+            <span class="feed-name"><strong><%= r.name %></strong><small><%= r.type === 'tutor' ? 'Tutor' : 'Staf' %></small></span>
+            <time class="feed-time"><%= r.time %></time>
+          </li>
+        <% }) %>
+      </ol>
+      <p class="empty" id="recent-empty" <%= recent.length ? 'hidden' : '' %>>Belum ada yang memindai kartu hari ini.</p>
+    </section>
+  </div>
+</div>
+<script src="/vendor/jsqr.js"></script>
+<script src="/scan.js" defer></script>
+<%- include('partials/footer') %>

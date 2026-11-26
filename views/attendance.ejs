@@ -1,0 +1,65 @@
+<%- include('partials/header', { title: 'Input Absensi' }) %>
+<section class="page-head">
+  <div>
+    <h1>Input absensi</h1>
+    <p class="lead"><%= dateLabel %></p>
+  </div>
+  <div class="page-actions">
+    <a class="btn btn-ghost" href="/scan"><svg class="icon"><use href="#i-scan"/></svg>Pindai QR</a>
+  </div>
+</section>
+
+<form method="get" action="/attendance" class="daybar no-print" aria-label="Pilih tanggal">
+  <a class="icon-btn" href="/attendance?date=<%= prevDate %>" aria-label="Hari sebelumnya" title="Hari sebelumnya"><svg class="icon"><use href="#i-left"/></svg></a>
+  <label class="sr-only" for="date-input">Tanggal</label>
+  <input id="date-input" type="date" name="date" value="<%= date %>" onchange="this.form.submit()">
+  <a class="icon-btn" href="/attendance?date=<%= nextDate %>" aria-label="Hari berikutnya" title="Hari berikutnya"><svg class="icon"><use href="#i-right"/></svg></a>
+  <% if (!isToday) { %><a class="btn btn-ghost btn-sm" href="/attendance">Ke hari ini</a><% } %>
+</form>
+
+<% if (saved) { %><p class="notice notice-success" role="status">Absensi berhasil disimpan.</p><% } %>
+
+<form method="post" action="/attendance" id="roll-form">
+  <input type="hidden" name="date" value="<%= date %>">
+  <section class="panel roll-panel">
+    <div class="roll-head" aria-hidden="true">
+      <span>No</span><span>Anggota</span><span>Status</span><span>Catatan</span><span>Masuk</span>
+    </div>
+    <ul class="roll">
+      <% rows.forEach((r, i) => { %>
+        <li class="roll-row">
+          <span class="roll-no"><%= i + 1 %></span>
+          <div class="roll-person">
+            <strong><%= formatTitleCase(r.name) %></strong>
+            <small><%= r.type === 'tutor' ? 'Tutor' : 'Staf' %> · <%= r.code %></small>
+          </div>
+          <fieldset class="seg" aria-label="Status <%= formatTitleCase(r.name) %>">
+            <% STATUSES.forEach(s => { %>
+              <label class="seg-opt seg-<%= s %>">
+                <input type="radio" name="status_<%= r.id %>" value="<%= s %>" <%= r.status === s ? 'checked' : '' %>>
+                <span><%= STATUS_LABELS[s] %></span>
+              </label>
+            <% }) %>
+          </fieldset>
+          <input class="roll-note" name="note_<%= r.id %>" value="<%= r.note || '' %>" placeholder="Catatan" aria-label="Catatan untuk <%= formatTitleCase(r.name) %>">
+          <span class="roll-time">
+            <% if (r.check_in_time) { %>
+              <time><%= hhmm(r.check_in_time) %></time><% if (r.source === 'qr') { %><small>QR</small><% } %>
+            <% } else { %><span class="muted">–</span><% } %>
+          </span>
+        </li>
+      <% }) %>
+      <% if (!rows.length) { %><li class="empty-row">Belum ada anggota aktif. Tambahkan lewat menu Data anggota.</li><% } %>
+    </ul>
+  </section>
+
+  <div class="savebar">
+    <p class="savebar-info"><strong id="pending-count">0</strong> anggota belum dicatat</p>
+    <div class="savebar-actions">
+      <button type="button" class="btn btn-ghost" id="mark-all-present">Tandai sisanya hadir</button>
+      <button type="submit" class="btn">Simpan absensi</button>
+    </div>
+  </div>
+</form>
+<script src="/attendance.js" defer></script>
+<%- include('partials/footer') %>

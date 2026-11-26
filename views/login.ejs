@@ -1,0 +1,16 @@
+<%- include('partials/header', { title: 'Masuk' }) %>
+<div class="auth-card">
+  <div class="auth-brand">
+   <img src="/LOGOBMC.jpeg" alt="Logo PKBM BMC Pandeglang" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px; flex-shrink: 0;">
+    <span class="brand-copy"><strong>PKBM BMC Pandeglang</strong><small>Sistem informasi absensi</small></span>
+  </div>
+  <h1>Masuk</h1>
+  <p class="lead">Catat dan pantau kehadiran tutor dan staf.</p>
+  <% if (error) { %><p class="notice notice-error" role="alert"><%= error %></p><% } %>
+  <form method="post" action="/login" class="stack">
+    <label class="field"><span>Username</span><input name="username" autocomplete="username" required autofocus></label>
+    <label class="field"><span>Password</span><input name="password" type="password" autocomplete="current-password" required></label>
+    <button class="btn btn-block" type="submit">Masuk</button>
+  </form>
+</div>
+<%- include('partials/footer') %>
