@@ -1,0 +1,19 @@
+<% if (user) { %>
+    </main>
+  </div>
+
+  <nav class="tabbar no-print" aria-label="Navigasi utama (ponsel)">
+    <a href="/" <%- currentPath === '/' ? 'class="active" aria-current="page"' : '' %>><svg class="icon"><use href="#i-home"/></svg><span>Beranda</span></a>
+    <% if (user.role === 'admin') { %>
+      <a href="/attendance" <%- currentPath === '/attendance' ? 'class="active" aria-current="page"' : '' %>><svg class="icon"><use href="#i-check"/></svg><span>Absensi</span></a>
+      <a class="tab-scan <%= currentPath === '/scan' ? 'active' : '' %>" href="/scan" <%- currentPath === '/scan' ? 'aria-current="page"' : '' %>><span class="tab-scan-disc"><svg class="icon"><use href="#i-scan"/></svg></span><span>Pindai</span></a>
+    <% } %>
+    <a href="/recap" <%- currentPath === '/recap' ? 'class="active" aria-current="page"' : '' %>><svg class="icon"><use href="#i-chart"/></svg><span>Rekap</span></a>
+    <a href="/members" <%- currentPath.startsWith('/members') ? 'class="active" aria-current="page"' : '' %>><svg class="icon"><use href="#i-users"/></svg><span>Anggota</span></a>
+  </nav>
+</div>
+<% } else { %>
+</main>
+<% } %>
+</body>
+</html>

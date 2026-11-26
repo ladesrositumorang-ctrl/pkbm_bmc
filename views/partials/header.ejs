@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#2150d9">
+  <title><%= title %> · Absensi PKBM BMC</title>
+  <link rel="preload" href="/fonts/plus-jakarta-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="<%= user ? 'has-shell' : 'is-auth' %>">
+<%- include('icons') %>
+<a class="skip-link" href="#main">Lewati ke konten</a>
+<% if (user) {
+  const nav = [{ href: '/', label: 'Dashboard', short: 'Beranda', icon: 'home' }];
+  if (user.role === 'admin') {
+    nav.push({ href: '/scan', label: 'Pindai QR', short: 'Pindai', icon: 'scan', primary: true });
+    nav.push({ href: '/attendance', label: 'Input absensi', short: 'Absensi', icon: 'check' });
+  }
+  nav.push({ href: '/recap', label: 'Rekap & laporan', short: 'Rekap', icon: 'chart' });
+  nav.push({ href: '/members', label: 'Data anggota', short: 'Anggota', icon: 'users' });
+  const isActive = (href) => href === '/' ? currentPath === '/' : currentPath === href || currentPath.startsWith(href + '/');
+%>
+<div class="shell">
+  <aside class="sidebar no-print">
+    <a class="brand" href="/" aria-label="PKBM BMC, ke Dashboard">
+     <img src="LOGOBMC.jpeg" alt="Logo PKBM BMC" style="width: 36px; height: 36px; object-fit: contain; border-radius: 8px; flex-shrink: 0;">
+      <span class="brand-copy"><strong>PKBM BMC</strong><small>Absensi Pandeglang</small></span>
+    </a>
+    <nav class="side-nav" aria-label="Navigasi utama">
+      <% nav.forEach(item => { %>
+        <a href="<%= item.href %>" <%- isActive(item.href) ? 'class="active" aria-current="page"' : '' %>>
+          <svg class="icon"><use href="#i-<%= item.icon %>"/></svg><span><%= item.label %></span>
+        </a>
+      <% }) %>
+    </nav>
+    <div class="account">
+      <span class="avatar" aria-hidden="true"><%= user.name.charAt(0) %></span>
+      <span class="account-copy"><strong><%= user.name %></strong><small><%= user.role %></small></span>
+      <form method="post" action="/logout">
+        <button class="icon-btn" type="submit" title="Keluar" aria-label="Keluar"><svg class="icon"><use href="#i-logout"/></svg></button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar no-print">
+      <a class="brand" href="/" aria-label="PKBM BMC, ke Dashboard">
+        <span class="brand-mark" aria-hidden="true"><svg class="icon"><use href="#i-tick"/></svg></span>
+        <span class="brand-copy"><strong>PKBM BMC</strong><small><%= user.name %></small></span>
+      </a>
+      <form method="post" action="/logout">
+        <button class="btn btn-ghost btn-sm" type="submit"><svg class="icon"><use href="#i-logout"/></svg>Keluar</button>
+      </form>
+    </header>
+    <main class="app-main" id="main">
+<% } else { %>
+<main class="auth" id="main">
+<% } %>
