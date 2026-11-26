@@ -722,7 +722,7 @@ app.get("/recap", requireLogin, (req, res) => {
   res.render("recap", { rows, period, date, type, from, to, TYPES });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`Absensi PKBM BMC berjalan di http://localhost:${PORT}`),
-);
+const PORT = Number(process.env.PORT) || 3000;
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Absensi PKBM BMC berjalan di port ${PORT}`);
+});
